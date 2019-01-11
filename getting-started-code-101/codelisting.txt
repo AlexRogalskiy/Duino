@@ -1,0 +1,27 @@
+# Codes for "Make Sensors" - http://BotBook.com
+
+## arduino/ ##
+
+ human-touch/human-touch.ino - detect human touch with Keyes capacitive touch sensor
+ photoresistor/photoresistor.ino - blink faster in dark, slower in the light
+ infrared_proximity/infrared_proximity.ino - light LED when object near, using Dagu IR switch
+ pot/pot.ino - control LED blinking speed with potentiometer
+ temperature_lm35/temperature_lm35.ino - LM35 temperature in Celcius to serial
+ squeeze_serial/squeeze_serial.ino - flexiforce squeeze level to serial
+ button/button.ino - light a led by pressing button
+ distance_ping/distance_ping.ino - distance using ultrasonic ping sensor
+ hc-sr04/hc-sr04.ino - distance using ultrasonic ping sensor
+ blinkHello/blinkHello.ino - test development environment by blinking an LED
+ serial/serial.ino - send text from Arduino to computer serial monitor
+
+## raspberrypi/ ##
+
+ human-touch/human-touch.py - detect human touch with Keyes capacitive touch sensor
+ pot_once/pot_once.py - measure resistance of a potentiometer, once
+ adjustable-infrared-sensor-switch/adjustable-infrared-sensor-switch.py - is object within predefined distance?
+ botbook_mcp3002/botbook_mcp3002.py - read analog values from mcp3002
+ led_hello/led_hello.py - blink external LED to test GPIO pins
+ botbook_gpio/botbook_gpio.py - gpio library.
+ hc-sr04/hc-sr04.py - measure distance with ultrasound
+ lm35/lm35.py - print temperature in Celcius
+ pot_repeat/pot_repeat.py - continuously measure resistance of a potentiometer

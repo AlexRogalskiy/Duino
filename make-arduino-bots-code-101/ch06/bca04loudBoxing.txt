@@ -1,0 +1,39 @@
+﻿// bca04loudBoxing - Signal rounds with a gong sound.
+// (c) Kimmo Karvinen & Tero Karvinen http://BotBook.com
+
+package fi.sulautetut.android.loudboxing;
+
+import android.app.Activity;
+import android.media.MediaPlayer;
+import android.os.Bundle;
+import android.os.Handler;
+import android.widget.TextView;
+
+public class LoudBoxing extends Activity {
+       private Handler handler;
+       private TextView tv;
+       MediaPlayer fightSound;
+
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+       super.onCreate(savedInstanceState);
+       tv = new TextView(this);
+       tv.append("Welcome to BotBook.com Chess Boxing! ");
+       setContentView(tv);
+
+       fightSound= MediaPlayer.create(this, R.raw.fightsound ); 
+       
+       handler = new Handler();
+       handler.removeCallbacks(update);
+       handler.postDelayed(update, 50);
+   }
+
+       private Runnable update = new Runnable() {
+               public void run() {
+                      fightSound.start(); 
+                      tv.append("Bling! ");
+                      handler.removeCallbacks(update);
+                      handler.postDelayed(this, 10*1000); 
+               }
+       };
+}

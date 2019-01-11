@@ -1,0 +1,245 @@
+﻿// bca08boxingClockReady - A usable boxing clock for Android. 
+// (c) Kimmo Karvinen & Tero Karvinen http://BotBook.com
+ 
+package fi.sulautetut.android.animatedboxing;
+ 
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.media.MediaPlayer;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+ 
+public class AnimatedBoxing extends Activity {
+    private Handler handler;
+    private PieView tPie;
+    private long pieEnds;
+    private long fightLen=3*60*1000; // ms
+    private long breakLen=60*1000;
+    private long pieStarted; // round or break, ms
+    private boolean fight=true; // will be changed immediately
+    private MediaPlayer fightSound;
+    private MediaPlayer breakSound;
+    private static final int MENU105=105;
+    private static final int MENU21=21;
+    private static final int MENU31=31;
+    private int boxingRedColor = 0xffff2704;
+    private TextView tv;
+    private long programStarted;
+    private long roundsStarted=0;
+ 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+ 
+        fightSound = MediaPlayer.create(this, R.raw.fightsound);
+        breakSound = MediaPlayer.create(this, R.raw.breaksound);
+ 
+        programStarted=SystemClock.uptimeMillis();
+ 
+        LinearLayout container=new LinearLayout(this); 
+        container.setOrientation(android.widget.LinearLayout.VERTICAL); 
+ 
+        tv = new TextView(this);
+        tv.setText("Welcome to BotBook.com Boxing Clock!");
+        tv.setGravity(Gravity.CENTER); 
+        tv.setTextColor(boxingRedColor); 
+        tv.setBackgroundColor(Color.BLACK);
+        tv.setPadding(5, 20, 5, 5); 
+        container.addView(tv); 
+ 
+        tPie = new PieView(this);
+        container.addView(tPie);
+ 
+        keepBackLightOn();
+        fullscreen();
+ 
+        setContentView(container); 
+    }
+ 
+    public void onPause() 
+    {
+        super.onPause();
+        Toast.makeText(this, "Bye bye! "+statusMessage(), 
+Toast.LENGTH_LONG).show();
+        handler.removeCallbacks(update);
+    }
+ 
+    public void onResume() 
+    {
+        super.onResume();
+        handler = new Handler();
+        handler.removeCallbacks(update);
+        handler.postDelayed(update, 50);        
+    }
+ 
+    public void keepBackLightOn() { 
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+                             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+ 
+    public void fullscreen() 
+    {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                             WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
+ 
+    public boolean onCreateOptionsMenu(Menu menu) { 
+        menu.add(Menu.NONE, MENU105, 0, "10 s / 5 s");
+        menu.add(Menu.NONE, MENU21, 0, "2 min / 1 min");
+        menu.add(Menu.NONE, MENU31, 0, "3 min / 1 min");
+        return true;
+    }
+ 
+    public boolean onOptionsItemSelected(MenuItem item) { 
+        long now=SystemClock.uptimeMillis();
+        pieEnds=now;
+        programStarted=now;
+        fight=true; // will be changed immediately because pieEnds=now
+        roundsStarted=0;
+ 
+        switch (item.getItemId()) {
+        case MENU105:
+            fightLen = 10*1000;
+            breakLen = 5*1000;
+            Toast.makeText(this, "10 second round, 5 second break. ",
+                           Toast.LENGTH_LONG).show();
+            return true; // will exit, so a "break;" would be 
+                         // unreachable
+        case MENU21:
+            fightLen = 2*60*1000;
+            breakLen = 60*1000;
+            Toast.makeText(this, "2 minute round, 1 minute break. ",
+                           Toast.LENGTH_LONG).show();
+            return true;
+        case MENU31:
+            fightLen = 3*60*1000;
+            breakLen = 60*1000;
+            Toast.makeText(this, "3 minute round, 1 minute break. ",
+                           Toast.LENGTH_LONG).show();
+            return true;
+        }
+        return false;
+    }
+ 
+    private String ms2mins(long ms)
+    { // convert millisecond time to minutes and seconds
+        int seconds = (int) (ms / 1000);
+        int min = seconds / 60; 
+        int sec = seconds % 60; 
+        String pad;
+        if (sec<10)
+            pad="0"; 
+        else
+            pad="";
+        return ""+ min +":"+pad+sec;
+    }
+ 
+    private String statusMessage()
+    {
+        String s=""; 
+        long totalElapsed=SystemClock.uptimeMillis()-programStarted;
+        s+=ms2mins(totalElapsed); 
+        s+=" elapsed. ";
+ 
+        if (fight) {
+            s+="Round ";
+        } else {
+            s+="Break ";
+        }
+        s+=roundsStarted+".";
+        return s;
+    }
+ 
+    private Runnable update = new Runnable() {
+        public void run() {
+            long now=SystemClock.uptimeMillis();
+            if (pieEnds<now) {
+                fight=!fight;
+                pieStarted=now;
+                if (fight) { // round starts
+                    roundsStarted++;
+                    pieEnds=pieStarted+fightLen;
+                    fightSound.start();
+                } else { // break starts
+                    pieEnds=pieStarted+breakLen;
+                    breakSound.start();
+                }
+            } 
+            tv.setText(statusMessage());
+            tPie.fightColors=fight;
+            tPie.percent=(float)(now-pieStarted)/(float)(pieEnds-pieStarted);
+            tPie.invalidate();
+ 
+            handler.removeCallbacks(update);
+            handler.postDelayed(this, 80); // ms
+        }                                          
+    };
+ 
+    public class PieView extends View {
+        public float percent;
+        public boolean fightColors=false;
+        Bitmap fightBg;
+        Bitmap breakBg;
+ 
+        public PieView(Context context) {
+            super(context);
+            fightBg=BitmapFactory.decodeResource(getResources(),
+                                                 R.drawable.clockfight);
+            breakBg=BitmapFactory.decodeResource(getResources(), 
+                                                 R.drawable.clockbreak);
+        }
+ 
+        public void onDraw(Canvas canvas) {
+            canvas.drawColor(Color.BLACK);
+ 
+            Paint paint = new Paint();
+            paint.setColor(Color.WHITE);
+ 
+            float w=canvas.getWidth(); 
+            float h=canvas.getHeight();
+            float margin=10; // pixels from pie to nearest wall
+            float r=(Math.min(h,w)-margin)/2; // ray, half diameter 
+            // center first - because we want it centered 
+            float cx=w/2;
+            float liftCenter=-50;
+            float cy=h/2+liftCenter;
+            // top left 
+            float tx=cx-r;
+            float ty=cy-r;
+            // bottom right 
+            float bx=tx+2*r;
+            float by=ty+2*r;
+ 
+            RectF bgRect = new RectF(tx, ty, bx, by); 
+ 
+            RectF oval=new RectF(bgRect); // copy bgRect measures instead 
+                                          // of creating a reference
+            oval.inset((int)(r*0.29), (int)(r*0.29)); 
+ 
+            if (fightColors) { 
+                canvas.drawBitmap(fightBg, null, bgRect, null);
+            } else {
+                canvas.drawBitmap(breakBg, null, bgRect, null);
+            }
+ 
+            canvas.drawArc(oval, -90, 360*percent, true, paint); 
+        }
+    };
+}

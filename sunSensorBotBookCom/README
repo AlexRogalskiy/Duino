@@ -1,0 +1,30 @@
+# Sun Sensor Prototype for Finland's First Satellite
+
+For pictures & more information, see 
+
+	http://BotBook.com/satellite
+
+### Installing Development Environment
+
+This is the quickest and the most effective way for advanced users. 
+If this looks confusing, feel free to use vanilla Arduino IDE graphically. 
+
+On xUbuntu 12.04
+$ ./install-develtools.sh
+
+Build and connect physical devices. See http://botbook.com/satellite
+
+Connect master first, so it gets /dev/ttyACM0.  
+
+$ make
+
+### Make commands
+
+- 'make' compiles master and slave to two Arduinos, then runs serial monitor. This 
+  is the Sun Sensor Prototype.
+- 'make e910' compiles and uploads a simple e910 "hello sunsensor" example
+- 'make clean' removes object files etc
+- 'make blink' wipes old code from Arduinos with Blink. 
+
+Copyright 2013 http://botbook.com/satellite Tero Karvinen & Kimmo Karvinen
+

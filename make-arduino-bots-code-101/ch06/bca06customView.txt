@@ -1,0 +1,31 @@
+﻿// bca06customView - Build custom view with green background
+// (c) Kimmo Karvinen & Tero Karvinen http://BotBook.com
+
+package fi.sulautetut.android.greencolor;
+
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.view.View;
+
+public class GreenColor extends Activity {
+   @Override
+   public void onCreate(Bundle savedInstanceState) { 
+       super.onCreate(savedInstanceState);
+       PieView tPie = new PieView(this); 
+       setContentView(tPie); 
+   }
+
+   public class PieView extends View { 
+       
+       public PieView(Context context) { 
+               super(context);
+       }
+
+       public void onDraw(Canvas canvas) {
+               canvas.drawColor(Color.GREEN); 
+       }
+   }
+}

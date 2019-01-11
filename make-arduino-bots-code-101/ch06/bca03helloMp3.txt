@@ -1,0 +1,18 @@
+﻿// bca03helloMp3 - Play a sound
+// (c) Kimmo Karvinen & Tero Karvinen http://BotBook.com
+
+package fi.sulautetut.android.hellomp3;
+
+import android.app.Activity;
+import android.media.MediaPlayer; 
+import android.os.Bundle;
+
+public class HelloMp3 extends Activity {
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+       super.onCreate(savedInstanceState);
+       MediaPlayer fightSound = MediaPlayer.create(this, R.raw.fightsound); 
+       fightSound.start(); 
+       setContentView(R.layout.main); 
+   }
+}

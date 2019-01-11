@@ -1,0 +1,139 @@
+<!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+
+<!-- start e910-86-arduino.ino source code -->
+<pre><tt><i><font color="#9A1900">/* Read sun position with Elmos E910.86 SPI on Arduino.</font></i>
+<i><font color="#9A1900">Copyright 2013 </font></i><u><font color="#0000FF">http://botbook.com/satellite</font></u><i><font color="#9A1900"> Tero Karvinen &amp; Kimmo Karvinen</font></i>
+
+<i><font color="#9A1900">Connections for SPI:</font></i>
+<i><font color="#9A1900"># Arduino-Purpose-E910.86</font></i>
+<i><font color="#9A1900">ard13-sck-e1  white</font></i>
+<i><font color="#9A1900">ard11-mosi-e2 green</font></i>
+<i><font color="#9A1900">ard12-miso-e3 yellow</font></i>
+<i><font color="#9A1900">ard10-cs-e4   brown</font></i>
+<i><font color="#9A1900">ard5v-reset-e5	red</font></i>
+<i><font color="#9A1900">ardGnd-gnd-e6	black</font></i>
+<i><font color="#9A1900">ard5v-vcc-e7	red</font></i>
+<i><font color="#9A1900">ardA3-analogSOUT-e8 blue </font></i>
+
+<i><font color="#9A1900">When the text is top up ("Aalto-1 Sun Sensor Proto V1")</font></i>
+<i><font color="#9A1900">- pin one is top left.</font></i>
+<i><font color="#9A1900">- x grows to left</font></i>
+<i><font color="#9A1900">- y grows down</font></i>
+<i><font color="#9A1900">- when sun is directly in front of the sensor, (x,y)==(0,0)</font></i>
+<i><font color="#9A1900">The connector has 8 pins. </font></i>
+<i><font color="#9A1900">The protoboard is made excatly as descibed on E910.86 data sheet. </font></i>
+
+<i><font color="#9A1900">SPI functions start with 's'. </font></i>
+<i><font color="#9A1900">*/</font></i>
+
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;SPI.h&gt;</font>
+
+<b><font color="#0000FF">const</font></b> <font color="#009900">int</font> sSlaveSelectPin <font color="#990000">=</font> <font color="#993399">10</font><font color="#990000">;</font>
+
+<font color="#009900">int</font> xdeg <font color="#990000">=</font> <font color="#990000">-</font><font color="#993399">273</font><font color="#990000">;</font>
+<font color="#009900">int</font> ydeg <font color="#990000">=</font> <font color="#990000">-</font><font color="#993399">273</font><font color="#990000">;</font>
+ 
+<font color="#009900">void</font> <b><font color="#000000">setup</font></b><font color="#990000">()</font> <font color="#FF0000">{</font>
+	Serial<font color="#990000">.</font><b><font color="#000000">begin</font></b><font color="#990000">(</font><font color="#993399">115200</font><font color="#990000">);</font> <i><font color="#9A1900">// bit/s	</font></i>
+    Serial<font color="#990000">.</font><b><font color="#000000">println</font></b><font color="#990000">(</font><font color="#FF0000">"BotBook.com/satellite"</font><font color="#990000">);</font>
+    <b><font color="#000000">sInit</font></b><font color="#990000">();</font>
+	<b><font color="#000000">spiWrite</font></b><font color="#990000">(</font>0b10010000<font color="#990000">,</font> 0b00010000<font color="#990000">);</font> <i><font color="#9A1900">// enable</font></i>
+<font color="#FF0000">}</font>
+ 
+<font color="#009900">void</font> <b><font color="#000000">loop</font></b><font color="#990000">()</font> <font color="#FF0000">{</font>
+	<b><font color="#000000">spiWrite</font></b><font color="#990000">(</font>0b00000000<font color="#990000">,</font> 0b00011000<font color="#990000">);</font>	<i><font color="#9A1900">// read xy-angle</font></i>
+	<b><font color="#000000">delay</font></b><font color="#990000">(</font><font color="#993399">100</font><font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+<i><font color="#9A1900">/* spi */</font></i>
+
+<font color="#009900">void</font> <b><font color="#000000">sInit</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+	Serial<font color="#990000">.</font><b><font color="#000000">println</font></b><font color="#990000">(</font><font color="#FF0000">"sInit()"</font><font color="#990000">);</font>
+	SPI<font color="#990000">.</font><b><font color="#000000">begin</font></b><font color="#990000">();</font> 
+	Serial<font color="#990000">.</font><b><font color="#000000">println</font></b><font color="#990000">(</font><font color="#FF0000">"SPI.begin() done. "</font><font color="#990000">);</font>
+	<b><font color="#000000">pinMode</font></b> <font color="#990000">(</font>sSlaveSelectPin<font color="#990000">,</font> OUTPUT<font color="#990000">);</font>
+	SPI<font color="#990000">.</font><b><font color="#000000">setDataMode</font></b><font color="#990000">(</font>SPI_MODE0<font color="#990000">);</font>
+	SPI<font color="#990000">.</font><b><font color="#000000">setBitOrder</font></b><font color="#990000">(</font>MSBFIRST<font color="#990000">);</font>
+	SPI<font color="#990000">.</font><b><font color="#000000">setClockDivider</font></b><font color="#990000">(</font>SPI_CLOCK_DIV4<font color="#990000">);</font>
+	<b><font color="#000000">digitalWrite</font></b><font color="#990000">(</font>sSlaveSelectPin<font color="#990000">,</font> HIGH<font color="#990000">);</font>
+	Serial<font color="#990000">.</font><b><font color="#000000">println</font></b><font color="#990000">(</font><font color="#FF0000">"sInit() done. "</font><font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">int</font> <b><font color="#000000">spiWrite</font></b><font color="#990000">(</font><font color="#009900">int</font> byte1<font color="#990000">,</font> <font color="#009900">int</font> byte2<font color="#990000">)</font> <font color="#FF0000">{</font>
+	<b><font color="#000000">digitalWrite</font></b><font color="#990000">(</font>sSlaveSelectPin<font color="#990000">,</font> LOW<font color="#990000">);</font>
+	<b><font color="#000000">delay</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">);</font>
+	<font color="#009900">unsigned</font> <font color="#009900">int</font> res1 <font color="#990000">=</font> SPI<font color="#990000">.</font><b><font color="#000000">transfer</font></b><font color="#990000">(</font>byte1<font color="#990000">);</font>
+	<b><font color="#000000">delay</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">);</font>
+	<font color="#009900">unsigned</font> <font color="#009900">int</font> res2 <font color="#990000">=</font> SPI<font color="#990000">.</font><b><font color="#000000">transfer</font></b><font color="#990000">(</font>byte2<font color="#990000">);</font>
+	<b><font color="#000000">delay</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">);</font>
+	<b><font color="#000000">digitalWrite</font></b><font color="#990000">(</font>sSlaveSelectPin<font color="#990000">,</font> HIGH<font color="#990000">);</font> 
+	<b><font color="#000000">sSerExplainPacket</font></b><font color="#990000">(</font><b><font color="#000000">combine</font></b><font color="#990000">(</font>res1<font color="#990000">,</font> res2<font color="#990000">));</font>
+<font color="#FF0000">}</font>
+
+<i><font color="#9A1900">/* parsing */</font></i>
+
+<font color="#009900">void</font> <b><font color="#000000">sSerExplainPacket</font></b><font color="#990000">(</font><font color="#009900">unsigned</font> <font color="#009900">long</font> <font color="#009900">int</font> p<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+	<b><font color="#0000FF">if</font></b> <font color="#990000">(</font>p<font color="#990000">&gt;&gt;</font><font color="#993399">16</font><font color="#990000">-</font><font color="#993399">4</font> <font color="#990000">==</font> 0b0100<font color="#990000">)</font> <font color="#FF0000">{</font>
+
+		<font color="#009900">int</font> x <font color="#990000">=</font> p <font color="#990000">&amp;</font> 0b0000111111000000<font color="#990000">;</font>
+		x <font color="#990000">=</font> x<font color="#990000">&gt;&gt;</font><font color="#993399">6</font><font color="#990000">;</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">int</font> xzero <font color="#990000">=</font> <font color="#993399">29</font><font color="#990000">;</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">int</font> xmax <font color="#990000">=</font> <font color="#993399">51</font><font color="#990000">;</font> <i><font color="#9A1900">// at 75 deg</font></i>
+		xdeg <font color="#990000">=</font> <font color="#990000">(</font>x<font color="#990000">-</font>xzero<font color="#990000">)</font> <font color="#990000">*</font> <font color="#993399">75</font><font color="#990000">/(</font>xmax<font color="#990000">-</font>xzero<font color="#990000">);</font> 
+		<font color="#009900">int</font> y <font color="#990000">=</font> p <font color="#990000">&amp;</font> 0b0000000000111111<font color="#990000">;</font>
+
+		<b><font color="#0000FF">const</font></b> <font color="#009900">int</font> yzero <font color="#990000">=</font> <font color="#993399">29</font><font color="#990000">;</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">int</font> ymax <font color="#990000">=</font> <font color="#993399">51</font><font color="#990000">;</font> <i><font color="#9A1900">// at 75 deg</font></i>
+		ydeg <font color="#990000">=</font> <font color="#990000">(</font>y<font color="#990000">-</font>yzero<font color="#990000">)</font> <font color="#990000">*</font> <font color="#993399">75</font><font color="#990000">/(</font>ymax<font color="#990000">-</font>yzero<font color="#990000">);</font>
+
+		Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font><font color="#FF0000">"xy: "</font><font color="#990000">);</font>
+		Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font><font color="#FF0000">"raw:("</font><font color="#990000">);</font>
+		Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font>x<font color="#990000">);</font>
+		Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font><font color="#FF0000">","</font><font color="#990000">);</font>
+		Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font>y<font color="#990000">);</font>
+		Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font><font color="#FF0000">")"</font><font color="#990000">);</font>
+
+		Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font><font color="#FF0000">" deg:["</font><font color="#990000">);</font>
+		Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font>xdeg<font color="#990000">);</font>
+		Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font><font color="#FF0000">","</font><font color="#990000">);</font>
+		Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font>ydeg<font color="#990000">);</font>
+		Serial<font color="#990000">.</font><b><font color="#000000">println</font></b><font color="#990000">(</font><font color="#FF0000">"]"</font><font color="#990000">);</font>
+
+		<b><font color="#0000FF">if</font></b> <font color="#990000">((</font>xdeg<font color="#990000">&lt;-</font><font color="#993399">75</font><font color="#990000">)</font> <b><font color="#000000">or</font></b> <font color="#990000">(</font><font color="#993399">75</font><font color="#990000">&lt;</font>xdeg<font color="#990000">)</font> <b><font color="#000000">or</font></b> <font color="#990000">(</font>ydeg<font color="#990000">&lt;-</font><font color="#993399">75</font><font color="#990000">)</font> <b><font color="#000000">or</font></b> <font color="#990000">(</font><font color="#993399">75</font><font color="#990000">&lt;</font>ydeg<font color="#990000">))</font> <font color="#FF0000">{</font>
+			Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font><font color="#FF0000">" (angle out of range) "</font><font color="#990000">);</font>
+		<font color="#FF0000">}</font>
+	<font color="#FF0000">}</font> <b><font color="#0000FF">else</font></b> <font color="#FF0000">{</font>
+		Serial<font color="#990000">.</font><b><font color="#000000">println</font></b><font color="#990000">(</font><font color="#FF0000">"SPI Error: Unknown message "</font><font color="#990000">);</font>
+		<b><font color="#000000">serBits</font></b><font color="#990000">(</font>p<font color="#990000">);</font>
+	<font color="#FF0000">}</font>
+<font color="#FF0000">}</font>
+
+<i><font color="#9A1900">/* end parsing */</font></i>
+
+<i><font color="#9A1900">/* bit helpers */</font></i>
+
+<font color="#009900">unsigned</font> <font color="#009900">long</font> <font color="#009900">int</font> <b><font color="#000000">combine</font></b><font color="#990000">(</font><font color="#009900">unsigned</font> <font color="#009900">int</font> left<font color="#990000">,</font> <font color="#009900">unsigned</font> <font color="#009900">int</font> right<font color="#990000">)</font>
+<font color="#FF0000">{</font> <i><font color="#9A1900">// combine two 8 bit words to one 16 bit word</font></i>
+	<b><font color="#0000FF">return</font></b> <font color="#990000">(</font>left<font color="#990000">&lt;&lt;</font><font color="#993399">8</font><font color="#990000">)+</font>right<font color="#990000">;</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> <b><font color="#000000">serBits</font></b><font color="#990000">(</font><font color="#009900">unsigned</font> <font color="#009900">long</font> <font color="#009900">int</font> x<font color="#990000">)</font> 
+<font color="#FF0000">{</font> <i><font color="#9A1900">// Print bits of x. x must be 16 bits.</font></i>
+	<b><font color="#0000FF">for</font></b><font color="#990000">(</font><font color="#009900">int</font> i<font color="#990000">=</font><font color="#993399">16</font><font color="#990000">;</font> i<font color="#990000">&gt;</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">--)</font> <font color="#FF0000">{</font>
+		<font color="#009900">unsigned</font> <font color="#009900">int</font> b <font color="#990000">=</font> 0b1000000000000000 <font color="#990000">&amp;</font> x<font color="#990000">;</font>
+		b <font color="#990000">=</font> b<font color="#990000">&gt;&gt;(</font><font color="#993399">16</font><font color="#990000">-</font><font color="#993399">1</font><font color="#990000">);</font>
+		Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font>b<font color="#990000">,</font> DEC<font color="#990000">);</font>
+		<b><font color="#0000FF">if</font></b> <font color="#990000">((</font>i<font color="#990000">-</font><font color="#993399">1</font><font color="#990000">)</font> <font color="#990000">%</font> <font color="#993399">4</font> <font color="#990000">==</font> <font color="#993399">0</font><font color="#990000">)</font>
+			Serial<font color="#990000">.</font><b><font color="#000000">print</font></b><font color="#990000">(</font><font color="#FF0000">' '</font><font color="#990000">);</font> 
+		x<font color="#990000">=</font>x<font color="#990000">&lt;&lt;</font><font color="#993399">1</font><font color="#990000">;</font>
+	<font color="#FF0000">}</font>
+<font color="#FF0000">}</font>
+
+<i><font color="#9A1900">/* end bit helpers */</font></i>
+</tt></pre>
+<!-- end e910-86-arduino.ino source code -->

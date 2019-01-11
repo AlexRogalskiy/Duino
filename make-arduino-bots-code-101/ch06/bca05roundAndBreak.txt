@@ -1,0 +1,58 @@
+﻿// bca05roundAndBreak - Round and break with different length and sound.
+// (c) Kimmo Karvinen & Tero Karvinen http://BotBook.com
+
+package fi.sulautetut.android.loudboxing;
+
+import android.app.Activity;
+import android.media.MediaPlayer;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.widget.TextView;
+
+public class LoudBoxing extends Activity {
+       private Handler handler;
+       private TextView tv;
+       private MediaPlayer fightSound;
+       private MediaPlayer breakSound; 
+       private boolean fight=false; 
+       private long pieStarted; // round or break, ms 
+       private long pieEnds;
+       private long fightLen=10*1000; // ms 
+       private long breakLen=5*1000;
+
+       @Override
+       public void onCreate(Bundle savedInstanceState) {
+               super.onCreate(savedInstanceState);
+               tv = new TextView(this);
+               tv.append("Welcome to BotBook.com Chess Boxing! ");
+               setContentView(tv);
+
+               fightSound= MediaPlayer.create(this, R.raw.fightsound );
+               breakSound= MediaPlayer.create(this, R.raw.breaksound );
+
+               handler = new Handler();
+               handler.removeCallbacks(update);
+               handler.postDelayed(update, 50);
+       }
+
+       private Runnable update = new Runnable() {
+               public void run() { 
+                       if (pieEnds<SystemClock.uptimeMillis()) { 
+                               fight=!fight; 
+                               pieStarted=SystemClock.uptimeMillis(); 
+                               if (fight) { // round starts 
+                                       pieEnds=pieStarted+fightLen; bk
+                                       fightSound.start(); bl
+                                       tv.setText("Fight! ");  
+                               } else { bm
+                                       pieEnds=pieStarted+breakLen;
+                                       breakSound.start();
+                                       tv.setText("Break. ");
+                               }
+                       }
+                       handler.removeCallbacks(update);
+                       handler.postDelayed(this, 1000);
+               }
+       };
+}

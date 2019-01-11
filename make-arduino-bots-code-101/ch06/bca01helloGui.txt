@@ -1,0 +1,18 @@
+﻿// bca01helloGui - Create a simple graphical user interface
+// (c) Kimmo Karvinen & Tero Karvinen http://BotBook.com
+
+package fi.sulautetut.android.chessboxing; 
+
+import android.app.Activity; 
+import android.os.Bundle;
+import android.widget.TextView;
+
+public class ChessBoxing extends Activity { 
+   @Override
+   public void onCreate(Bundle savedInstanceState) { 
+       super.onCreate(savedInstanceState);
+       TextView tv = new TextView(this); 
+       tv.append("Welcome to BotBook.com Chess Boxing!"); 
+       setContentView(tv); 
+   }
+}

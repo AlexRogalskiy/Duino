@@ -1,0 +1,67 @@
+﻿// bca07animatedBoxing - Animated pie shows time left.
+// (c) Kimmo Karvinen & Tero Karvinen http://BotBook.com
+
+package fi.sulautetut.android.animatedboxing;
+
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.view.View;
+
+public class AnimatedBoxing extends Activity {
+       private Handler handler;
+       private PieView tPie; 
+       private long pieEnds;
+       private long fightLen=10*1000; // ms
+       private long pieStarted; // round or break, ms
+
+       @Override
+       public void onCreate(Bundle savedInstanceState) {
+               super.onCreate(savedInstanceState);
+
+               handler = new Handler();
+               handler.removeCallbacks(update);
+               handler.postDelayed(update, 50);
+
+               tPie = new PieView(this);
+               setContentView(tPie); 
+       }
+
+       private Runnable update = new Runnable() {
+               public void run() {
+                       long now=SystemClock.uptimeMillis();
+                       if (pieEnds<now) {
+                                       pieStarted=now;
+                                       pieEnds=pieStarted+fightLen;
+                       }
+                       tPie.percent=
+                         (float)(now-pieStarted)/(pieEnds-pieStarted); 
+                       tPie.invalidate(); 
+                       
+                       handler.removeCallbacks(update);
+                       handler.postDelayed(this, 50); // ms 
+               }                                                                              
+       };
+
+       public class PieView extends View { 
+               public float percent;
+               public PieView(Context context) {
+                       super(context);
+               }
+
+               public void onDraw(Canvas canvas) {
+                       Paint paint = new Paint();
+                       paint.setColor(Color.WHITE); 
+                       RectF oval=new RectF(0, 0, 
+                                            canvas.getWidth(), 
+                                            canvas.getHeight());
+                       canvas.drawArc(oval, 0, 360*percent, true, paint); 
+               }
+       };
+}

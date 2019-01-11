@@ -1,0 +1,40 @@
+﻿import processing.serial.*; 
+
+// A serial port that we use to talk to Arduino.
+Serial myPort; 
+
+
+// The Processing setup method that’s run once
+void setup() { 
+
+  size(320, 320); // create a window 
+
+  // List all the available serial ports: 
+  println(Serial.list());
+
+  /* On some computers, Arduino will usually be connected to
+   the first serial port. If not, change the 0 to the
+   correct one (examine the output of the previous line
+   of code to figure out which one to use). */
+  myPort = new Serial(this, Serial.list()[0], 9600);
+}
+
+
+/* The draw() method is called up to 60 times a second
+ unless you change the frame rate of Processing.
+ 
+ Normally, it is used to update the graphics onscreen,
+ but we're just polling the serial port here.
+ */
+void draw() { 
+
+  // Put up a black background.
+  background(0);
+
+  // Read the serial port.
+  if (myPort.available() > 0) { 
+
+    char inByte = myPort.readChar();
+    print(inByte); // Displays the character that was read
+  }
+}
